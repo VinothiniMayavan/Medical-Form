@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form Summary</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Form Summary</h1>
+        <div id="summaryContent"></div>
+        <button id="downloadButton">More</button>
+    </div>
+
+    <!-- Include SheetJS (xlsx) library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+    const summaryContent = document.getElementById("summaryContent");
+    summaryContent.innerHTML = localStorage.getItem("formSummary");
+
+    document.getElementById("downloadButton").addEventListener("click", function() {
+        const password = prompt("Enter password to download the Excel file:");
+        if (password === "yourPassword") { // Replace "yourPassword" with your actual password
+            downloadExcel();
+        } else {
+            alert("Incorrect password");
+        }
+    });
+});
+
+function downloadExcel() {
+    // Retrieve all saved data from localStorage
+    const allData = JSON.parse(localStorage.getItem("allFormData"));
+    
+    // Check if there is any data available
+    if (!allData || allData.length === 0) {
+        alert("No data available to download.");
+        return;
+    }
+
+    // Prepare data for Excel
+    const worksheetData = [["Field", "Value"]];
+    allData.forEach((entry, index) => {
+        worksheetData.push([]);
+        worksheetData.push([`Entry ${index + 1}`, ""]);
+        Object.entries(entry).forEach(([key, value]) => {
+            worksheetData.push([key, value]);
+        });
+    });
+
+    // Create a worksheet and workbook
+    const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Summary");
+
+    // Generate and download Excel file
+    XLSX.writeFile(workbook, 'Nurse_Report_Summary.xlsx');
+}
+
+    </script>
+</body>
+</html>
